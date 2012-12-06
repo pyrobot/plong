@@ -13,7 +13,7 @@ public class Server : MonoBehaviour {
 	}
 	
 	void Start () {
-		BeginConnect("localhost", 1337);
+		BeginConnect("guildbros.com", 1337);
 	}
 	
 	Socket thisSocket = null;
@@ -30,13 +30,13 @@ public class Server : MonoBehaviour {
 	{		
 	    _this.thisSocket = (Socket) ar.AsyncState;
 	    _this.thisSocket.EndConnect(ar);
+		Debug.Log ("connected");
 	}
 	
 	public static void BeginConnect(string host, int port)
 	{
 	    IPAddress[] IPs = Dns.GetHostAddresses(host);
 	
-		
 	    Socket s = new Socket(AddressFamily.InterNetwork,
 	        SocketType.Stream,
 	        ProtocolType.Tcp);
@@ -45,6 +45,7 @@ public class Server : MonoBehaviour {
 
 	}
 	
+	/*
 	void Update() {
 		if (_this.thisSocket != null) {
 			if (_this.thisSocket.Available > 0) {
@@ -54,4 +55,5 @@ public class Server : MonoBehaviour {
 			}
 		}
 	}
+	*/
 }
