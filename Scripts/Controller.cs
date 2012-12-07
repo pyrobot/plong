@@ -2,40 +2,56 @@ using UnityEngine;
 using System;
 using System.Collections;
 
+public enum Modes {
+	Master,
+	Slave
+}
+
 public class Controller : MonoBehaviour {
-		
+	static Controller _this;
+	
 	public Paddle rightPaddle, leftPaddle;
 	public Ball ball;
 	
-	Paddle playerPaddle;
+	public Modes mode;
+	
+	Paddle playerPaddle, remotePaddle;
+	
+	public static Modes Mode { get { return _this.mode; } }
+	
+	void Awake() {
+		_this = this;	
+	}
 	
 	void Start () {
 		TouchMonitor.Register(onTouch);
-		playerPaddle = rightPaddle;
+		if (mode == Modes.Master) {
+			playerPaddle = rightPaddle;
+			remotePaddle = leftPaddle;
+		} else {
+			playerPaddle = leftPaddle;
+			remotePaddle = rightPaddle;
+		}
 	}
 	
 	void onTouch( TouchEvent e ) {
 		if (e.type == TouchType.Start || e.type == TouchType.Hold ) {
-			rightPaddle.move(e.deltaPosition);
-			if (e.deltaPosition.x != 0 || e.deltaPosition.y != 0) {
-				Byte[] x_bytes = BitConverter.GetBytes(e.deltaPosition.x),
-					   y_bytes = BitConverter.GetBytes(e.deltaPosition.y);
-				Byte[] bytes = new Byte[10];
-				bytes[0] = 0x0A;
-				bytes[1] = 0x00;
-				bytes[2] = x_bytes[0];
-				bytes[3] = x_bytes[1];
-				bytes[4] = x_bytes[2];
-				bytes[5] = x_bytes[3];
-				bytes[6] = y_bytes[0];
-				bytes[7] = y_bytes[1];
-				bytes[8] = y_bytes[2];
-				bytes[9] = y_bytes[3];
-				Server.Send(bytes);
-			}
-		} else if (e.type == TouchType.Stop) {
-			// todo..
-		}		
+			playerPaddle.move(e.deltaPosition);
+		} 		
+	}	
+	
+	/*
+	void moveRemote(float x, float y) {
+		remotePaddle.move(new Vector3(x, y, 0));
+	}
+	
+	public static void MoveRemote(float x, float y) {
+		_this.moveRemote(x, y);
+	}
+	*/
+	
+	public static void SetRemotePosition(float x, float y) {
+		_this.remotePaddle.setPos(new Vector2(-10, y));
 	}
 	
 }

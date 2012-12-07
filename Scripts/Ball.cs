@@ -3,18 +3,27 @@ using System.Collections;
 
 public class Ball : MonoBehaviour {
 	
+	static Ball _this;
+	
 	Vector3 velocity;
 	Transform thisTransform;
 	Rigidbody thisRigidbody;
 	float speed = 1;
 	
+	void Awake() {
+		_this = this;	
+	}
+	
 	void Start () {
 		thisTransform = transform;
 		thisRigidbody = rigidbody;
-		setVelocity(5, 1);	
+		if (Controller.Mode == Modes.Master) {
+			setVelocity(5, 1);	
+		}
 	}
 	
 	void setVelocity(float x, float y) {
+		if (Controller.Mode == Modes.Slave) return;
 		velocity = new Vector3(x,y,0);
 		thisRigidbody.velocity = velocity;
 	}
@@ -29,7 +38,13 @@ public class Ball : MonoBehaviour {
 		}
 	}
 	
-	void Update () {
-		
+	public static void SetRemotePosition(float x, float y) {
+		_this.thisTransform.localPosition = new Vector3(x, y, 0);	
+	}
+	
+	void FixedUpdate() {
+		if (Controller.Mode == Modes.Master) {
+			Server.SendPosition(0x02, thisTransform.position.x, thisTransform.position.y);
+		}
 	}
 }

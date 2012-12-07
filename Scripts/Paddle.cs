@@ -9,6 +9,8 @@ public class Paddle : MonoBehaviour {
 		, speed 		  = 4
 		;
 	
+	Vector3 lastPosition;
+	
 	Transform thisTransform;
 	
 	void Start () {
@@ -20,10 +22,15 @@ public class Paddle : MonoBehaviour {
 		currentMovement = movement * Time.deltaTime * speed;
 	}
 	
-	void Update () {
+	public void setPos( Vector2 pos ) {
+		thisTransform.localPosition = new Vector3(thisTransform.localPosition.x, pos.y, 0);
+	}
+	
+	void FixedUpdate () {
 		if (currentMovement != 0) {
 			thisTransform.localPosition = new Vector3(thisTransform.localPosition.x, Mathf.Clamp(thisTransform.localPosition.y + currentMovement, -bounds, bounds), thisTransform.localPosition.z);
 			currentMovement = Mathf.Lerp(currentMovement, 0, Time.deltaTime * 10);
+			Server.SendPosition (0x00, thisTransform.localPosition.x, thisTransform.localPosition.y);
 		}
 	}
 }
